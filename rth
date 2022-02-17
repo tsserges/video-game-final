@@ -1,0 +1,173 @@
+controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
+    mySprite.setImage(runnerTurn[2])
+})
+controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
+    mySprite.setImage(runnerTurn[1])
+})
+info.onCountdownEnd(function () {
+    Follower.destroy()
+})
+controller.right.onEvent(ControllerButtonEvent.Pressed, function () {
+    mySprite.setImage(runnerTurn[0])
+})
+function setFollower () {
+    Follower = sprites.create(img`
+        3 3 3 3 3 3 3 3 3 3 3 
+        3 3 3 3 3 3 3 3 3 3 3 
+        3 3 3 3 3 3 3 3 3 3 3 
+        3 3 3 3 3 3 3 3 3 3 3 
+        3 3 3 3 3 3 3 3 3 3 3 
+        3 3 3 3 3 3 3 3 3 3 3 
+        3 3 3 3 3 3 3 3 3 3 3 
+        3 3 3 3 3 3 3 3 3 3 3 
+        3 3 3 3 3 3 3 3 3 3 3 
+        3 3 3 3 3 3 3 3 3 3 3 
+        3 3 3 3 3 3 3 3 3 3 3 
+        `, SpriteKind.Enemy)
+    Follower.setPosition(randint(8, 148), 0)
+    Follower.follow(mySprite, followerSpeed)
+    mySprite.setFlag(SpriteFlag.AutoDestroy, true)
+}
+controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
+    mySprite.setImage(runnerTurn[3])
+})
+info.onLifeZero(function () {
+    game.over(false)
+})
+function setEnemySprite (timeSpeed: number) {
+    for (let index = 0; index < info.score(); index++) {
+        Nemesis = sprites.create(img`
+            7 7 7 7 7 7 7 7 7 7 7 
+            7 7 7 7 7 7 7 7 7 7 7 
+            7 7 7 7 7 7 7 7 7 7 7 
+            7 7 7 7 7 7 7 7 7 7 7 
+            7 7 7 7 7 7 7 7 7 7 7 
+            7 7 7 7 7 7 7 7 7 7 7 
+            7 7 7 7 7 7 7 7 7 7 7 
+            7 7 7 7 7 7 7 7 7 7 7 
+            7 7 7 7 7 7 7 7 7 7 7 
+            7 7 7 7 7 7 7 7 7 7 7 
+            7 7 7 7 7 7 7 7 7 7 7 
+            `, SpriteKind.Enemy)
+        Nemesis.setPosition(randint(8, 148), 0)
+        Nemesis.setVelocity(0, randint(45, 189))
+        Nemesis.setFlag(SpriteFlag.AutoDestroy, true)
+        pause(timeSpeed)
+        followChance = randint(0, 10)
+    }
+}
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSprite) {
+    info.changeLifeBy(-1)
+    otherSprite.destroy(effects.fire, 500)
+})
+function setPlayerSprite () {
+    info.setLife(3)
+    mySprite = sprites.create(img`
+        2 2 2 2 2 2 2 2 2 2 2 
+        2 2 2 2 2 2 2 2 2 2 2 
+        2 2 2 2 2 2 2 2 2 2 2 
+        2 2 2 2 2 2 2 2 2 2 2 
+        2 2 2 2 2 2 2 2 2 2 2 
+        2 2 2 2 2 2 2 2 2 2 2 
+        2 2 2 2 2 2 2 2 2 2 2 
+        2 2 2 2 2 2 2 2 2 2 2 
+        2 2 2 2 2 2 2 2 2 2 2 
+        2 2 2 2 2 2 2 2 2 2 2 
+        2 2 2 2 2 2 2 2 2 2 2 
+        `, SpriteKind.Player)
+    mySprite.setPosition(80, 112)
+    mySprite.setStayInScreen(true)
+    controller.moveSprite(mySprite)
+}
+let followChance = 0
+let Nemesis: Sprite = null
+let Follower: Sprite = null
+let mySprite: Sprite = null
+let runnerTurn: Image[] = []
+let followerSpeed = 0
+followerSpeed = 70
+setPlayerSprite()
+let enemySpeech = [
+"You stink",
+"Better run",
+"Im gonna get you",
+"You're Done For!"
+]
+runnerTurn = [
+img`
+    2 2 2 2 2 2 2 2 2 2 2 
+    2 2 2 2 2 2 2 2 2 2 2 
+    2 2 2 2 f 2 2 2 2 2 2 
+    2 2 2 2 f f 2 2 2 2 2 
+    2 2 2 2 f f f 2 2 2 2 
+    f f f f f f f f 2 2 2 
+    2 2 2 2 f f f 2 2 2 2 
+    2 2 2 2 f f 2 2 2 2 2 
+    2 2 2 2 f 2 2 2 2 2 2 
+    2 2 2 2 2 2 2 2 2 2 2 
+    2 2 2 2 2 2 2 2 2 2 2 
+    `,
+img`
+    2 2 2 2 2 2 2 2 2 2 2 
+    2 2 2 2 2 2 2 2 2 2 2 
+    2 2 2 2 f 2 2 2 2 2 2 
+    2 2 2 f f 2 2 2 2 2 2 
+    2 2 f f f 2 2 2 2 2 2 
+    2 f f f f f f f f 2 2 
+    2 2 f f f 2 2 2 2 2 2 
+    2 2 2 f f 2 2 2 2 2 2 
+    2 2 2 2 f 2 2 2 2 2 2 
+    2 2 2 2 2 2 2 2 2 2 2 
+    2 2 2 2 2 2 2 2 2 2 2 
+    `,
+img`
+    2 2 2 2 2 2 2 2 2 2 2 
+    2 2 2 2 2 2 2 2 2 2 2 
+    2 2 2 2 2 2 2 2 2 2 2 
+    2 2 2 2 2 f 2 2 2 2 2 
+    2 2 2 2 f f f 2 2 2 2 
+    2 2 2 f f f f f 2 2 2 
+    2 2 f f f f f f f 2 2 
+    2 2 2 2 2 f 2 2 2 2 2 
+    2 2 2 2 2 f 2 2 2 2 2 
+    2 2 2 2 2 f 2 2 2 2 2 
+    2 2 2 2 2 f 2 2 2 2 2 
+    `,
+img`
+    2 2 2 2 2 f 2 2 2 2 2 
+    2 2 2 2 2 f 2 2 2 2 2 
+    2 2 2 2 2 f 2 2 2 2 2 
+    2 2 2 2 2 f 2 2 2 2 2 
+    2 2 f f f f f f f 2 2 
+    2 2 2 f f f f f 2 2 2 
+    2 2 2 2 f f f 2 2 2 2 
+    2 2 2 2 2 f 2 2 2 2 2 
+    2 2 2 2 2 2 2 2 2 2 2 
+    2 2 2 2 2 2 2 2 2 2 2 
+    2 2 2 2 2 2 2 2 2 2 2 
+    `,
+img`
+    2 2 2 2 2 2 2 2 2 2 2 
+    2 2 2 2 2 2 2 2 2 2 2 
+    2 2 2 2 2 2 2 2 2 2 2 
+    2 2 2 2 2 2 2 2 2 2 2 
+    2 2 2 2 2 2 2 2 2 2 2 
+    2 2 2 2 2 2 2 2 2 2 2 
+    2 2 2 2 2 2 2 2 2 2 2 
+    2 2 2 2 2 2 2 2 2 2 2 
+    2 2 2 2 2 2 2 2 2 2 2 
+    2 2 2 2 2 2 2 2 2 2 2 
+    2 2 2 2 2 2 2 2 2 2 2 
+    `
+]
+game.onUpdateInterval(5000, function () {
+    setFollower()
+    info.startCountdown(1.9)
+    Follower.sayText(enemySpeech[randint(0, 3)])
+})
+game.onUpdateInterval(1000, function () {
+    info.changeScoreBy(1)
+})
+forever(function () {
+    setEnemySprite(400)
+})
