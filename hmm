@@ -1,0 +1,205 @@
+// This calls the third image in our Image matrix. And it happens when you press the up arrow.
+controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
+    runner.setImage(runnerTurn[2])
+})
+// This calls the second image in our Image matrix. And it happens when you press the left arrow.
+controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
+    runner.setImage(runnerTurn[1])
+})
+// every time the countdown ends, every 1.9 seconds, the follower enemy will destroy itself so the player can continue
+info.onCountdownEnd(function () {
+    Follower.destroy()
+})
+// This calls the first image in our Image matrix. And it happens when you press the right arrow.
+controller.right.onEvent(ControllerButtonEvent.Pressed, function () {
+    runner.setImage(runnerTurn[0])
+})
+// The function creates the "following" enemy in a random position at the top of the screen, giving the "following" enemy the ability to follow the player, as well as being destroyed when contact is made with the player
+function setFollower () {
+    Follower = sprites.create(img`
+        3 3 3 3 3 3 3 3 3 3 3 
+        3 3 3 3 3 3 3 3 3 3 3 
+        3 3 3 3 3 3 3 3 3 3 3 
+        3 3 3 3 3 3 3 3 3 3 3 
+        3 3 3 3 3 3 3 3 3 3 3 
+        3 3 3 3 3 3 3 3 3 3 3 
+        3 3 3 3 3 3 3 3 3 3 3 
+        3 3 3 3 3 3 3 3 3 3 3 
+        3 3 3 3 3 3 3 3 3 3 3 
+        3 3 3 3 3 3 3 3 3 3 3 
+        3 3 3 3 3 3 3 3 3 3 3 
+        `, SpriteKind.Enemy)
+    // sets the follower enemy at a random position at the top of the screen.
+    Follower.setPosition(randint(8, 148), 0)
+    Follower.follow(runner, followerSpeed)
+    runner.setFlag(SpriteFlag.AutoDestroy, true)
+}
+// This calls the fourth image in our Image matrix. And it happens when you press the down arrow.
+controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
+    runner.setImage(runnerTurn[3])
+})
+// ends the game when all lives are gone
+info.onLifeZero(function () {
+    game.over(false)
+})
+// This function calls for enemy sprites to rain from a random position at the top of the screen. Enemy sprites are destroyed when contact is made with  player.
+function setEnemySprite (timeSpeed: number) {
+    for (let index = 0; index < info.score(); index++) {
+        Nemesis = sprites.create(img`
+            7 7 7 7 7 7 7 7 7 7 7 
+            7 7 7 7 7 7 7 7 7 7 7 
+            7 7 7 7 7 7 7 7 7 7 7 
+            7 7 7 7 7 7 7 7 7 7 7 
+            7 7 7 7 7 7 7 7 7 7 7 
+            7 7 7 7 7 7 7 7 7 7 7 
+            7 7 7 7 7 7 7 7 7 7 7 
+            7 7 7 7 7 7 7 7 7 7 7 
+            7 7 7 7 7 7 7 7 7 7 7 
+            7 7 7 7 7 7 7 7 7 7 7 
+            7 7 7 7 7 7 7 7 7 7 7 
+            `, SpriteKind.Enemy)
+        // sets the spawn position of the basic enemy to a random position at the top of the screen.
+        Nemesis.setPosition(randint(8, 148), 0)
+        // enemy auto destroys because of lag
+        Nemesis.setFlag(SpriteFlag.AutoDestroy, true)
+        // if the timeSpeed parameter is not equal to 400 it will speed up the enemies. This will happen when the timeSpeed is set to 300 when score = 20.
+        if (timeSpeed == 400) {
+            // makes the enemy fall downwards at a random speed between 45 and 189
+            Nemesis.setVelocity(0, randint(45, 189))
+        } else {
+            // makes the enemy fall downwards at a random speed between 45 and 189
+            Nemesis.setVelocity(0, randint(55, 210))
+        }
+        // pauses for however much time is set in the timeSpeed parameter in the  function call
+        pause(timeSpeed)
+    }
+}
+// When the player runs into an enemy, the amount of lives decreases by 1, the enemy touched get destroyed with a fire effect, and all other enemy sprites are destroyed as well.
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSprite) {
+    info.changeLifeBy(-1)
+    // destroys enemy sprite that player collides with to stop it from losing extra lives
+    otherSprite.destroy(effects.fire, 500)
+})
+// sets the runner sprite that the payer controls.
+function setPlayerSprite () {
+    info.setLife(3)
+    runner = sprites.create(img`
+        2 2 2 2 2 2 2 2 2 2 2 
+        2 2 2 2 2 2 2 2 2 2 2 
+        2 2 2 2 2 2 2 2 2 2 2 
+        2 2 2 2 2 2 2 2 2 2 2 
+        2 2 2 2 2 2 2 2 2 2 2 
+        2 2 2 2 2 2 2 2 2 2 2 
+        2 2 2 2 2 2 2 2 2 2 2 
+        2 2 2 2 2 2 2 2 2 2 2 
+        2 2 2 2 2 2 2 2 2 2 2 
+        2 2 2 2 2 2 2 2 2 2 2 
+        2 2 2 2 2 2 2 2 2 2 2 
+        `, SpriteKind.Player)
+    // sets the runner position which is the player to the middle of the screen when it first spawns.
+    runner.setPosition(80, 112)
+    // keeps the player in the screen
+    runner.setStayInScreen(true)
+    // moves the player sprite with the arrow keys and wasd
+    controller.moveSprite(runner)
+}
+let Nemesis: Sprite = null
+let Follower: Sprite = null
+let runner: Sprite = null
+let runnerTurn: Image[] = []
+let followerSpeed = 0
+// sets the initial speed of the follower enemy to 70
+followerSpeed = 70
+setPlayerSprite()
+// stores the dialogue that the enemy follower can say
+let enemySpeech = [
+"You stink",
+"Better run",
+"Im gonna get you",
+"You're Done For!"
+]
+// stores the images for the sprite in order to animate it when it turns.
+runnerTurn = [
+img`
+    2 2 2 2 2 2 2 2 2 2 2 
+    2 2 2 2 2 2 2 2 2 2 2 
+    2 2 2 2 f 2 2 2 2 2 2 
+    2 2 2 2 f f 2 2 2 2 2 
+    2 2 2 2 f f f 2 2 2 2 
+    f f f f f f f f 2 2 2 
+    2 2 2 2 f f f 2 2 2 2 
+    2 2 2 2 f f 2 2 2 2 2 
+    2 2 2 2 f 2 2 2 2 2 2 
+    2 2 2 2 2 2 2 2 2 2 2 
+    2 2 2 2 2 2 2 2 2 2 2 
+    `,
+img`
+    2 2 2 2 2 2 2 2 2 2 2 
+    2 2 2 2 2 2 2 2 2 2 2 
+    2 2 2 2 f 2 2 2 2 2 2 
+    2 2 2 f f 2 2 2 2 2 2 
+    2 2 f f f 2 2 2 2 2 2 
+    2 f f f f f f f f 2 2 
+    2 2 f f f 2 2 2 2 2 2 
+    2 2 2 f f 2 2 2 2 2 2 
+    2 2 2 2 f 2 2 2 2 2 2 
+    2 2 2 2 2 2 2 2 2 2 2 
+    2 2 2 2 2 2 2 2 2 2 2 
+    `,
+img`
+    2 2 2 2 2 2 2 2 2 2 2 
+    2 2 2 2 2 2 2 2 2 2 2 
+    2 2 2 2 2 2 2 2 2 2 2 
+    2 2 2 2 2 f 2 2 2 2 2 
+    2 2 2 2 f f f 2 2 2 2 
+    2 2 2 f f f f f 2 2 2 
+    2 2 f f f f f f f 2 2 
+    2 2 2 2 2 f 2 2 2 2 2 
+    2 2 2 2 2 f 2 2 2 2 2 
+    2 2 2 2 2 f 2 2 2 2 2 
+    2 2 2 2 2 f 2 2 2 2 2 
+    `,
+img`
+    2 2 2 2 2 f 2 2 2 2 2 
+    2 2 2 2 2 f 2 2 2 2 2 
+    2 2 2 2 2 f 2 2 2 2 2 
+    2 2 2 2 2 f 2 2 2 2 2 
+    2 2 f f f f f f f 2 2 
+    2 2 2 f f f f f 2 2 2 
+    2 2 2 2 f f f 2 2 2 2 
+    2 2 2 2 2 f 2 2 2 2 2 
+    2 2 2 2 2 2 2 2 2 2 2 
+    2 2 2 2 2 2 2 2 2 2 2 
+    2 2 2 2 2 2 2 2 2 2 2 
+    `
+]
+game.onUpdateInterval(5000, function () {
+    setFollower()
+    // starts a countdown and when it ends the follower sprite will be destroyed
+    info.startCountdown(1.7)
+    // every 5 seconds the follower sprite will say a random line of speech from the enemySpeech array.
+    Follower.sayText(enemySpeech[randint(0, 3)])
+})
+// The way you get a higher score is by surviving for longer and this is saying for each second you last you get one point.
+game.onUpdateInterval(1000, function () {
+    info.changeScoreBy(1)
+})
+// This is an if statement that says when you get to certain points in the game the follower speed will go up in order to make this game harder and not to easy.
+game.onUpdateInterval(1000, function () {
+    if (info.score() == 10) {
+        followerSpeed += 15
+    } else if (info.score() == 20) {
+        followerSpeed += 15
+    } else if (info.score() == 30) {
+        followerSpeed += 20
+    } else if (info.score() == 40) {
+        followerSpeed += 25
+    }
+})
+forever(function () {
+    if (info.score() < 20) {
+        setEnemySprite(400)
+    } else {
+        setEnemySprite(300)
+    }
+})
